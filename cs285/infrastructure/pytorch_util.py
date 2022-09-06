@@ -77,6 +77,9 @@ def build_mlp(
                 else:
                     self.fc[f'{i}'] = torch.nn.Linear(size, size)
 
+        def __call__(self, x):
+            return self.forward(x)
+
         def forward(self, x):
             for i in range(self.n_layers+2):
                 if i != n_layers+1:
@@ -84,6 +87,33 @@ def build_mlp(
                 else: 
                     x = self.output_activation(self.fc[f'{i}'])(x)
             return x
+    
+    #class NN2(torch.nn.Module):
+    #    def __init__(self,
+    #     input_size=input_size, 
+    #     output_size=output_size,
+    #     n_layers=n_layers,
+    #     size=size,
+    #     activation=activation,
+    #     output_activation=output_activation):
+
+    #        # ignoring dtype and device for now.
+
+    #        super(NN2, self).__init__()
+    #        self.n_layers = n_layers
+    #        self.activation = activation
+    #        self.output_activation = output_activation
+
+    #        self.fc1 = nn.Linear(input_size, size)
+    #        self.fc2 = nn.Linear(size, output_size)
+
+    #    def forward(self, x):
+    #        x = self.activation(self.fc1(x))
+    #        x = self.activation(self.fc2(x))
+    #        x = self.output_activation(x)
+
+    #        return x
+
 
     return NN()
 

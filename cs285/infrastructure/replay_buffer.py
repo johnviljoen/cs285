@@ -1,4 +1,5 @@
 from cs285.infrastructure.utils import *
+import torch
 
 
 class ReplayBuffer(object):
@@ -77,7 +78,16 @@ class ReplayBuffer(object):
         ## HINT 2: return corresponding data points from each array (i.e., not different indices from each array)
         ## HINT 3: look at the sample_recent_data function below
 
-        return TODO, TODO, TODO, TODO, TODO
+        # get first set of batch_size elements from randomly permuted arrays
+        indices = np.random.permutation(np.arange(self.obs.shape[0]))[0:batch_size]
+
+        obs_sample = torch.tensor([self.obs[x,:] for x in indices])
+        acs_sample = torch.tensor([self.acs[x,:] for x in indices])
+        rews_sample = torch.tensor([self.rews[x] for x in indices])
+        next_obs_sample = torch.tensor([self.next_obs[x,:] for x in indices])
+        terminals_sample = torch.tensor([self.terminals[x] for x in indices])
+
+        return obs_sample, acs_sample, rews_sample, next_obs_sample, terminals_sample 
 
     def sample_recent_data(self, batch_size=1):
         return (

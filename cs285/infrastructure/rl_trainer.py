@@ -1,6 +1,7 @@
 from collections import OrderedDict
 import numpy as np
 import time
+import pickle
 
 import gym
 import torch
@@ -164,12 +165,33 @@ class RL_Trainer(object):
 
                 # (2) collect `self.params['batch_size']` transitions
 
+
+
+        if itr == 0:
+            with open(load_initial_expertdata, 'rb') as f:
+                initial_expertdata = pickle.load(f)
+
+                # the loaded_paths are the sequences of observations used by the expert to 
+                # take actions. It appears 2 expert trajectories have been given for Ant-v4,
+                # HalfCheetah-v4, Hopper-v4, Walker2d-v4. This solution is therefore overengineered.
+
+                loaded_paths = []
+                for i, data in enumerate(initial_expertdata):
+                    loaded_paths.append(data)
+
+
+            return loaded_paths, 0, None
+
+        else:
+            import ipdb
+            ipdb.set_trace()
+            #test = collect_policy(loaded_paths[0][0,:])
+
+
         # TODO collect `batch_size` samples to be used for training
         # HINT1: use sample_trajectories from utils
         # HINT2: you want each of these collected rollouts to be of length self.params['ep_len']
 
-        import ipdb
-        ipdb.set_trace()
 
         print("\nCollecting data to be used for training...")
         paths, envsteps_this_batch = TODO
@@ -193,11 +215,18 @@ class RL_Trainer(object):
             # TODO sample some data from the data buffer
             # HINT1: use the agent's sample function
             # HINT2: how much data = self.params['train_batch_size']
-            ob_batch, ac_batch, re_batch, next_ob_batch, terminal_batch = TODO
+
+            sample = self.agent.sample(self.params['train_batch_size'])
+ 
+            ob_batch, ac_batch, re_batch, next_ob_batch, terminal_batch = self.agent.replay_buffer.sample_random_data(self.params['train_batch_size'])
 
             # TODO use the sampled data to train an agent
             # HINT: use the agent's train function
             # HINT: keep the agent's training log for debugging
+
+            import ipdb
+            ipdb.set_trace()
+
             train_log = TODO
             all_logs.append(train_log)
         return all_logs
