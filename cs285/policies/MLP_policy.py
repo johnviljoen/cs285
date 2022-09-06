@@ -81,7 +81,7 @@ class MLPPolicy(BasePolicy, nn.Module, metaclass=abc.ABCMeta):
             observation = obs[None]
 
         # TODO return the action that the policy prescribes
-        raise NotImplementedError
+        return self(torch.tensor(obs, dtype=torch.float32, device=ptu.device))
 
     # update/train this policy
     def update(self, observations, actions, **kwargs):
@@ -111,7 +111,9 @@ class MLPPolicySL(MLPPolicy):
         # TODO: update the policy and return the loss
         
         # find loss through MSELoss between policy and expert data
-        loss = self.loss(self(observations), torch.tensor(actions, device=ptu.device))
+        obs = torch.tensor(observations, dtype=torch.float32, device=ptu.device)
+        acs = torch.tensor(actions, device=ptu.device)
+        loss = self.loss(self(obs), acs)
         
         self.optimizer.zero_grad()
         loss.backward()

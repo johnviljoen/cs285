@@ -11,7 +11,7 @@ MJ_ENV_KWARGS["Ant-v4"]["use_contact_forces"] = True
 def sample_trajectory(env, policy, max_path_length, render=False):
 
     # initialize env for the beginning of a new rollout
-    ob = TODO # HINT: should be the output of resetting the env
+    ob = env.reset() # HINT: should be the output of resetting the env
 
     # init vars
     obs, acs, rewards, next_obs, terminals, image_obs = [], [], [], [], [], []
@@ -27,11 +27,14 @@ def sample_trajectory(env, policy, max_path_length, render=False):
 
         # use the most recent ob to decide what to do
         obs.append(ob)
-        ac = TODO # HINT: query the policy's get_action function
-        ac = ac[0]
+        ac = policy.get_action(ob).cpu().detach() # HINT: query the policy's get_action function
+        #ac = ac[0]
         acs.append(ac)
 
         # take that action and record results
+        import ipdb
+        ipdb.set_trace()
+
         ob, rew, done, _ = env.step(ac)
 
         # record result of taking that action
@@ -60,6 +63,11 @@ def sample_trajectories(env, policy, min_timesteps_per_batch, max_path_length, r
     timesteps_this_batch = 0
     paths = []
     while timesteps_this_batch < min_timesteps_per_batch:
+
+        sample_trajectory(env, policy, max_path_length)
+
+        import ipdb
+        ipdb.set_trace()
 
         TODO
 
