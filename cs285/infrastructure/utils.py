@@ -1,3 +1,4 @@
+from tkinter import W
 import numpy as np
 import time
 
@@ -27,13 +28,11 @@ def sample_trajectory(env, policy, max_path_length, render=False):
 
         # use the most recent ob to decide what to do
         obs.append(ob)
-        ac = policy.get_action(ob).cpu().detach() # HINT: query the policy's get_action function
-        #ac = ac[0]
+        ac = policy.get_action(ob).cpu().detach().numpy() # HINT: query the policy's get_action function
+        ac = ac[0]
         acs.append(ac)
 
         # take that action and record results
-        import ipdb
-        ipdb.set_trace()
 
         ob, rew, done, _ = env.step(ac)
 
@@ -44,7 +43,11 @@ def sample_trajectory(env, policy, max_path_length, render=False):
 
         # TODO end the rollout if the rollout ended
         # HINT: rollout can end due to done, or due to max_path_length
-        rollout_done = TODO # HINT: this is either 0 or 1
+        if done == True:
+            rollout_done = 1
+        else:
+            rollout_done = 0
+        # HINT: this is either 0 or 1
         terminals.append(rollout_done)
 
         if rollout_done:
@@ -64,12 +67,10 @@ def sample_trajectories(env, policy, min_timesteps_per_batch, max_path_length, r
     paths = []
     while timesteps_this_batch < min_timesteps_per_batch:
 
-        sample_trajectory(env, policy, max_path_length)
+        policy_traj = sample_trajectory(env, policy, max_path_length)
+        paths.append(policy_traj)
+        timesteps_this_batch += get_pathlength(policy_traj)
 
-        import ipdb
-        ipdb.set_trace()
-
-        TODO
 
     return paths, timesteps_this_batch
 

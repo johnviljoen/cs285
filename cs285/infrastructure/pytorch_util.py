@@ -82,6 +82,7 @@ def build_mlp(
             return self.forward(x)
 
         def forward(self, x):
+            x = torch.tensor(x, dtype=torch.float32, device=device) 
             for i in range(self.n_layers+2):
                 if i != n_layers+1:
                     x = self.activation(self.fc[f'{i}'](x))
@@ -114,7 +115,6 @@ def build_mlp(
     #        x = self.output_activation(x)
 
     #        return x
-
 
     return NN()
 

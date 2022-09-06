@@ -75,13 +75,16 @@ class MLPPolicy(BasePolicy, nn.Module, metaclass=abc.ABCMeta):
     ##################################
 
     def get_action(self, obs: np.ndarray) -> np.ndarray:
+
+        observation = torch.tensor(obs, dtype=torch.float32, device=ptu.device)
+        
         if len(obs.shape) > 1:
             observation = obs
         else:
             observation = obs[None]
 
         # TODO return the action that the policy prescribes
-        return self(torch.tensor(obs, dtype=torch.float32, device=ptu.device))
+        return self(observation)
 
     # update/train this policy
     def update(self, observations, actions, **kwargs):

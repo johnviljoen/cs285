@@ -179,7 +179,6 @@ class RL_Trainer(object):
                 for i, data in enumerate(initial_expertdata):
                     loaded_paths.append(data)
 
-
             return loaded_paths, 0, None
 
         else:
