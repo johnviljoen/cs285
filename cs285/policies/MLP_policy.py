@@ -109,7 +109,14 @@ class MLPPolicySL(MLPPolicy):
             adv_n=None, acs_labels_na=None, qvals=None
     ):
         # TODO: update the policy and return the loss
-        loss = TODO
+        
+        # find loss through MSELoss between policy and expert data
+        loss = self.loss(self(observations), torch.tensor(actions, device=ptu.device))
+        
+        self.optimizer.zero_grad()
+        loss.backward()
+        self.optimizer.step()
+
         return {
             # You can add extra logging information here, but keep this line
             'Training Loss': ptu.to_numpy(loss),

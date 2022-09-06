@@ -1,3 +1,4 @@
+from tkinter import W
 from typing import Union
 
 import torch
@@ -71,16 +72,17 @@ def build_mlp(
             self.fc = {}
             for i in range(n_layers+2):
                 if i == 0:
-                    self.fc[f'{i}'] = nn.Linear(input_size, size)
+                    self.fc[f'{i}'] = nn.Linear(input_size, size).to(device)
                 elif i == n_layers+1:
-                    self.fc[f'{i}'] = nn.Linear(size, output_size)
+                    self.fc[f'{i}'] = nn.Linear(size, output_size).to(device)
                 else:
-                    self.fc[f'{i}'] = torch.nn.Linear(size, size)
+                    self.fc[f'{i}'] = nn.Linear(size, size).to(device)
 
         def __call__(self, x):
             return self.forward(x)
 
         def forward(self, x):
+            x = torch.tensor(x, device=device)
             for i in range(self.n_layers+2):
                 if i != n_layers+1:
                     x = self.activation(self.fc[f'{i}'](x))
