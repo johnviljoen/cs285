@@ -181,19 +181,17 @@ class RL_Trainer(object):
 
             return loaded_paths, 0, None
 
-        else:
-            import ipdb
-            ipdb.set_trace()
-            #test = collect_policy(loaded_paths[0][0,:])
-
-
         # TODO collect `batch_size` samples to be used for training
         # HINT1: use sample_trajectories from utils
         # HINT2: you want each of these collected rollouts to be of length self.params['ep_len']
 
 
         print("\nCollecting data to be used for training...")
-        paths, envsteps_this_batch = TODO
+        paths, envsteps_this_batch = utils.sample_trajectories(env=self.env,
+            policy=collect_policy,
+            min_timesteps_per_batch=batch_size,
+            max_path_length=self.params['ep_len'],
+            render=False)
 
         # collect more rollouts with the same policy, to be saved as videos in tensorboard
         # note: here, we collect MAX_NVIDEO rollouts, each of length MAX_VIDEO_LEN
@@ -215,9 +213,10 @@ class RL_Trainer(object):
             # HINT1: use the agent's sample function
             # HINT2: how much data = self.params['train_batch_size']
 
-            sample = self.agent.sample(self.params['train_batch_size'])
+            ob_batch, ac_batch, re_batch, next_ob_batch, terminal_batch = self.agent.sample(self.params['train_batch_size'])
+
  
-            ob_batch, ac_batch, re_batch, next_ob_batch, terminal_batch = self.agent.replay_buffer.sample_random_data(self.params['train_batch_size'])
+            #ob_batch, ac_batch, re_batch, next_ob_batch, terminal_batch = self.agent.replay_buffer.sample_random_data(self.params['train_batch_size'])
 
             # TODO use the sampled data to train an agent
             # HINT: use the agent's train function
@@ -234,6 +233,10 @@ class RL_Trainer(object):
         # TODO relabel collected obsevations (from our policy) with labels from an expert policy
         # HINT: query the policy (using the get_action function) with paths[i]["observation"]
         # and replace paths[i]["action"] with these expert labels
+
+        num_paths = len(paths)
+        for i in range(num_paths):
+            paths[i]['action'] = expert_policy.get_action(obs = paths[i]['observation'])
 
         return paths
 

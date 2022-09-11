@@ -52,45 +52,16 @@ def build_mlp(
     # with 2 hidden layers, we have an input layer, 2 hidden layers, and an output layer,
     # all of which are fully connected
 
-    class NN(torch.nn.Module):
-        def __init__(self,
-         input_size=input_size, 
-         output_size=output_size,
-         n_layers=n_layers,
-         size=size,
-         activation=activation,
-         output_activation=output_activation):
+    NN = nn.Sequential(
+          nn.Linear(input_size,size),
+          activation,
+          nn.Linear(size,size),
+          activation,
+          nn.Linear(size,output_size),
+          output_activation
+        )
 
-            # ignoring dtype and device for now.
-
-            super(NN, self).__init__()
-            self.n_layers = n_layers
-            self.activation = activation
-            self.output_activation = output_activation
-
-            # form an MLP with correct input_size, output_size, and internal size
-            self.fc = {}
-            for i in range(n_layers+2):
-                if i == 0:
-                    self.fc[f'{i}'] = nn.Linear(input_size, size).to(device)
-                elif i == n_layers+1:
-                    self.fc[f'{i}'] = nn.Linear(size, output_size).to(device)
-                else:
-                    self.fc[f'{i}'] = nn.Linear(size, size).to(device)
-
-        def __call__(self, x):
-            return self.forward(x)
-
-        def forward(self, x):
-            x = torch.tensor(x, dtype=torch.float32, device=device) 
-            for i in range(self.n_layers+2):
-                if i != n_layers+1:
-                    x = self.activation(self.fc[f'{i}'](x))
-                else: 
-                    x = self.output_activation(self.fc[f'{i}'])(x)
-            return x
-    
-    #class NN2(torch.nn.Module):
+    #class NN(torch.nn.Module):
     #    def __init__(self,
     #     input_size=input_size, 
     #     output_size=output_size,
@@ -101,22 +72,35 @@ def build_mlp(
 
     #        # ignoring dtype and device for now.
 
-    #        super(NN2, self).__init__()
+    #        super(NN, self).__init__()
     #        self.n_layers = n_layers
     #        self.activation = activation
     #        self.output_activation = output_activation
 
-    #        self.fc1 = nn.Linear(input_size, size)
-    #        self.fc2 = nn.Linear(size, output_size)
+    #        # form an MLP with correct input_size, output_size, and internal size
+    #        self.fc = {}
+    #        for i in range(n_layers+2):
+    #            if i == 0:
+    #                self.fc[f'{i}'] = nn.Linear(input_size, size).to(device)
+    #            elif i == n_layers+1:
+    #                self.fc[f'{i}'] = nn.Linear(size, output_size).to(device)
+    #            else:
+    #                self.fc[f'{i}'] = nn.Linear(size, size).to(device)
+
+    #    def __call__(self, x):
+    #        return self.forward(x)
 
     #    def forward(self, x):
-    #        x = self.activation(self.fc1(x))
-    #        x = self.activation(self.fc2(x))
-    #        x = self.output_activation(x)
+    #        x = torch.tensor(x, dtype=torch.float32, device=device) 
+    #        for i in range(self.n_layers+2):
+    #            if i != n_layers+1:
+    #                x = self.activation(self.fc[f'{i}'](x))
+    #            else: 
+    #                x = self.output_activation(self.fc[f'{i}'])(x)
 
     #        return x
-
-    return NN()
+    
+    return NN
 
 
 device = None

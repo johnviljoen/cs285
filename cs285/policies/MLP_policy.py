@@ -76,15 +76,19 @@ class MLPPolicy(BasePolicy, nn.Module, metaclass=abc.ABCMeta):
 
     def get_action(self, obs: np.ndarray) -> np.ndarray:
 
-        observation = torch.tensor(obs, dtype=torch.float32, device=ptu.device)
         
         if len(obs.shape) > 1:
             observation = obs
         else:
             observation = obs[None]
+        
+        observation = torch.tensor(observation, dtype=torch.float32, device=ptu.device)
 
-        # TODO return the action that the policy prescribes
-        return self(observation)
+        if self.discrete:
+            return self(observation)
+        else:
+            return self(observation).rsample()
+
 
     # update/train this policy
     def update(self, observations, actions, **kwargs):
@@ -96,8 +100,12 @@ class MLPPolicy(BasePolicy, nn.Module, metaclass=abc.ABCMeta):
     # return more flexible objects, such as a
     # `torch.distributions.Distribution` object. It's up to you!
     def forward(self, observation: torch.FloatTensor) -> Any:
-        return self.mean_net(observation)
 
+        if self.discrete:
+            # in the discrete case simply use the expected optimal action learned.
+            return self.logits_na(observation)
+        else:
+            return distributions.Normal(self.mean_net(observation), self.logstd.exp())#.rsample()
 
 #####################################################
 #####################################################
@@ -114,13 +122,20 @@ class MLPPolicySL(MLPPolicy):
         # TODO: update the policy and return the loss
         
         # find loss through MSELoss between policy and expert data
-        obs = torch.tensor(observations, dtype=torch.float32, device=ptu.device)
-        acs = torch.tensor(actions, device=ptu.device)
-        loss = self.loss(self(obs), acs)
-        
+
+        obs = ptu.from_numpy(observations)
+        acs = ptu.from_numpy(actions)
+
+        if self.discrete:
+            loss = self.loss(self(obs), acs)
+        else:
+            loss = -self(obs).log_prob(acs).sum()
+
         self.optimizer.zero_grad()
+        print(loss)
         loss.backward()
         self.optimizer.step()
+        
 
         return {
             # You can add extra logging information here, but keep this line

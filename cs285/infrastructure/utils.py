@@ -29,11 +29,11 @@ def sample_trajectory(env, policy, max_path_length, render=False):
         # use the most recent ob to decide what to do
         obs.append(ob)
         ac = policy.get_action(ob).cpu().detach().numpy() # HINT: query the policy's get_action function
+        #ac = policy.get_action(ob)
         ac = ac[0]
         acs.append(ac)
 
         # take that action and record results
-
         ob, rew, done, _ = env.step(ac)
 
         # record result of taking that action
@@ -83,7 +83,8 @@ def sample_n_trajectories(env, policy, ntraj, max_path_length, render=False):
     """
     paths = []
 
-    TODO
+    for i in range(ntraj):
+        paths.append(sample_trajectory(env, policy, max_path_length, render=render))
 
     return paths
 
